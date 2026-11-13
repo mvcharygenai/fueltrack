@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f9fc">
+<title>FuelTrack</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#697586;--line:#e5eaf1;--blue:#2563eb;--blue2:#eaf1ff;--green:#16865b;--red:#c43d4b;--shadow:0 8px 24px rgba(28,45,75,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px}
+.head{max-width:850px;margin:auto;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;gap:10px;align-items:center;font-weight:800;font-size:19px}.logo{width:36px;height:36px;border-radius:12px;background:var(--blue);color:white;display:grid;place-items:center;font-size:20px}
+main{max-width:850px;margin:auto;padding:18px 14px 100px}.sub{color:var(--muted);font-size:13px}.section-title{font-size:17px;font-weight:750;margin:22px 2px 12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:var(--shadow);min-width:0}.metric-label{font-size:12px;color:var(--muted)}.metric{font-size:24px;font-weight:800;letter-spacing:-.6px;margin-top:5px;overflow-wrap:anywhere}.metric small{font-size:13px;font-weight:600;color:var(--muted)}.wide{grid-column:1/-1}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:10;padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+.navinner{display:flex;max-width:850px;width:100%;justify-content:space-around}.navbtn{border:0;background:none;color:var(--muted);font:600 11px system-ui;display:grid;gap:3px;justify-items:center;padding:5px 14px}.navbtn b{font-size:19px}.navbtn.active{color:var(--blue)}
+button,.btn{cursor:pointer;border:0;border-radius:12px;background:var(--blue);color:white;padding:12px 15px;font:700 14px system-ui}.secondary{background:var(--blue2);color:var(--blue)}.danger{background:#fff0f1;color:var(--red)}.ghost{background:transparent;color:var(--blue);padding:7px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap}
+label{display:block;font-size:13px;font-weight:650;margin:13px 0 6px}input,select{width:100%;border:1px solid #dce3ed;background:#fff;border-radius:11px;padding:12px;font:15px system-ui;color:var(--ink);outline:none}input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #2563eb18}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.hint{font-size:12px;color:var(--muted);margin-top:5px}.check{display:flex;align-items:center;gap:9px;margin:14px 0}.check input{width:18px;height:18px}.check label{margin:0}
+.entry{padding:13px 0;border-bottom:1px solid var(--line)}.entry:last-child{border:0}.entry strong{font-size:15px}.entry .detail{font-size:12px;color:var(--muted);margin-top:3px}.pill{font-size:11px;padding:4px 8px;border-radius:20px;background:#eaf8f1;color:var(--green);font-weight:700}.pill.gray{background:#f0f2f5;color:#667085}
+.barrow{display:grid;grid-template-columns:70px 1fr 70px;align-items:center;gap:8px;margin:12px 0;font-size:12px}.barbg{height:9px;background:#edf1f6;border-radius:20px;overflow:hidden}.bar{height:100%;background:#5b8def;border-radius:20px}
+.hidden{display:none!important}.empty{text-align:center;padding:28px 10px;color:var(--muted)}.empty b{display:block;color:var(--ink);margin-bottom:5px}.note{background:#fff8e8;border:1px solid #f3dfae;color:#74561c;padding:12px;border-radius:12px;font-size:12px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);background:#172033;color:white;padding:10px 15px;border-radius:30px;font-size:13px;z-index:20;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.formgrid{grid-template-columns:1fr 1fr}.card{padding:18px}}
+</style>
+</head>
+<body>
+<header><div class="head"><div class="brand"><div class="logo">⛽</div>FuelTrack</div><span class="sub">Your fuel, clearly tracked</span></div></header>
+<main>
+<section id="dashboard">
+ <div class="row"><div><div class="sub" id="todayLabel">YOUR VEHICLE</div><h2 style="margin:3px 0 0">Fuel dashboard</h2></div><button onclick="showPage('add')">＋ Add fuel</button></div>
+ <div class="grid" style="margin-top:16px">
+  <div class="card"><div class="metric-label">Total fuel spend</div><div class="metric" id="totalSpend">₹0</div><div class="sub">All recorded entries</div></div>
+  <div class="card"><div class="metric-label">Average mileage</div><div class="metric" id="avgMileage">— <small>km/L</small></div><div class="sub">Full-tank method</div></div>
+  <div class="card"><div class="metric-label">Latest odometer</div><div class="metric" id="latestOdo">— <small>km</small></div><div class="sub">Last recorded reading</div></div>
+  <div class="card"><div class="metric-label">Cost per km</div><div class="metric" id="costKm">—</div><div class="sub">Based on measured distance</div></div>
+ </div>
+ <div class="section-title">This month</div>
+ <div class="grid">
+  <div class="card"><div class="metric-label">Spent</div><div class="metric" id="monthSpend">₹0</div></div>
+  <div class="card"><div class="metric-label">Fuel added</div><div class="metric" id="monthLitres">0 <small>L</small></div></div>
+ </div>
+ <div class="section-title">Recent fuel entries</div><div class="card" id="recentList"></div>
+ <div class="note">Mileage accuracy: mark each fill-up as “Full tank” and enter the odometer. FuelTrack calculates mileage between consecutive full-tank fills.</div>
+</section>
+
+<section id="add" class="hidden">
+ <div class="row"><div><h2 style="margin:0">Add fuel entry</h2><div class="sub">Record a petrol refill</div></div></div>
+ <div class="card" style="margin-top:15px">
+  <form id="fuelForm">
+   <div class="formgrid">
+    <div><label for="date">Date</label><input id="date" type="date" required></div>
+    <div><label for="odo">Odometer (km)</label><input id="odo" type="number" min="0" step="0.1" placeholder="e.g. 12500" required></div>
+    <div><label for="litres">Fuel quantity (litres)</label><input id="litres" type="number" min="0.01" step="0.001" placeholder="e.g. 8.5" required></div>
+    <div><label for="price">Total paid (₹)</label><input id="price" type="number" min="0.01" step="0.01" placeholder="e.g. 900" required></div>
+   </div>
+   <div class="sub" id="ratePreview" style="margin-top:8px">Fuel rate: —</div>
+   <div class="check"><input id="fullTank" type="checkbox" checked><label for="fullTank">This was a full-tank fill</label></div>
+   <label for="station">Petrol pump / notes (optional)</label><input id="station" maxlength="80" placeholder="e.g. IndianOil, near home">
+   <div class="actions" style="margin-top:18px"><button type="submit" style="flex:1">Save entry</button><button type="button" class="secondary" onclick="resetForm()">Clear</button></div>
+   <div class="hint">Enter the odometer reading shown on your vehicle. Keep readings increasing and use the same unit (km).</div>
+  </form>
+ </div>
+ <div class="section-title">Mileage calculation</div><div class="card sub">For a reliable km/L figure, fill the tank to full, record the odometer, and do the same at the next fill. The app uses the litres added at the next full-tank fill to estimate the distance travelled.</div>
+</section>
+
+<section id="history" class="hidden">
+ <div class="row"><div><h2 style="margin:0">Fuel history</h2><div class="sub">All your recorded refills</div></div><button class="secondary" onclick="exportCSV()">Export CSV</button></div>
+ <div class="card" style="margin-top:15px" id="historyList"></div>
+</section>
+
+<section id="reports" class="hidden">
+ <h2 style="margin:0">Reports</h2><div class="sub">Spending and mileage trends</div>
+ <div class="section-title">Monthly fuel spending</div><div class="card" id="monthlyChart"></div>
+ <div class="section-title">Mileage readings</div><div class="card" id="mileageList"></div>
+ <div class="section-title">Data backup</div><div class="card">
+  <p class="sub">Back up all entries to a JSON file, or restore a previous FuelTrack backup.</p>
+  <div class="actions"><button onclick="backupJSON()">Download backup</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">Restore backup</button><input id="restoreFile" class="hidden" type="file" accept="application/json" onchange="restoreJSON(event)"></div>
+  <div class="hint">Restoring replaces the current entries on this device. Export a backup first if needed.</div>
+ </div>
+</section>
+</main>
+<nav><div class="navinner">
+ <button class="navbtn active" data-page="dashboard" onclick="showPage('dashboard')"><b>⌂</b>Home</button>
+ <button class="navbtn" data-page="add" onclick="showPage('add')"><b>＋</b>Add fuel</button>
+ <button class="navbtn" data-page="history" onclick="showPage('history')"><b>▤</b>History</button>
+ <button class="navbtn" data-page="reports" onclick="showPage('reports')"><b>▥</b>Reports</button>
+</div></nav>
+<div id="toast" class="toast"></div>
+<script>
+const KEY='fueltrack_entries_v1';
+let entries=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(entries))}
+function money(n){return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(n||0)}
+function num(n,d=1){return Number(n).toLocaleString('en-IN',{maximumFractionDigits:d})}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function sorted(){return [...entries].sort((a,b)=>a.odo-b.odo||a.date.localeCompare(b.date))}
+function mileageRecords(){
+ const full=sorted().filter(e=>e.fullTank);let out=[];
+ for(let i=1;i<full.length;i++){let prev=full[i-1],cur=full[i],dist=cur.odo-prev.odo;if(dist>0&&cur.litres>0)out.push({date:cur.date,kmpl:dist/cur.litres,dist,litres:cur.litres,cost:cur.cost})}
+ return out;
+}
+function showPage(p){
+ ['dashboard','add','history','reports'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==p));
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ if(p==='dashboard')renderDashboard();if(p==='history')renderHistory();if(p==='reports')renderReports();
+ if(p==='add'&&!document.getElementById('date').value)document.getElementById('date').value=new Date().toISOString().slice(0,10);
+ window.scrollTo(0,0);
+}
+function toast(s){let t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function entryHTML(e){
+ const m=e.mileage?`<span class="pill">${num(e.mileage,2)} km/L</span>`:'<span class="pill gray">Mileage pending</span>';
+ return `<div class="entry"><div class="row"><div><strong>${money(e.cost)}</strong> <span class="sub">· ${num(e.litres,2)} L</span></div>${m}</div><div class="detail">${esc(e.date)} · ${num(e.odo)} km · ₹${num(e.cost/e.litres,2)}/L${e.station?' · '+esc(e.station):''}${e.fullTank?' · Full tank':''}</div><div class="actions" style="margin-top:6px"><button class="ghost" onclick="editEntry('${e.id}')">Edit</button><button class="ghost" style="color:var(--red)" onclick="deleteEntry('${e.id}')">Delete</button></div></div>`;
+}
+function renderDashboard(){
+ const spend=entries.reduce((s,e)=>s+e.cost,0),m=mileageRecords(),latest=sorted().at(-1);
+ document.getElementById('totalSpend').textContent=money(spend);
+ document.getElementById('avgMileage').innerHTML=m.length?num(m.reduce((s,x)=>s+x.kmpl,0)/m.length,2)+' <small>km/L</small>':'— <small>km/L</small>';
+ document.getElementById('latestOdo').innerHTML=latest?num(latest.odo)+' <small>km</small>':'— <small>km</small>';
+ const dist=m.reduce((s,x)=>s+x.dist,0),cost=m.reduce((s,x)=>s+x.cost,0);
+ document.getElementById('costKm').textContent=dist?money(cost/dist)+'/km':'—';
+ const now=new Date(),month=now.toISOString().slice(0,7),me=entries.filter(e=>e.date.startsWith(month));
+ document.getElementById('monthSpend').textContent=money(me.reduce((s,e)=>s+e.cost,0));
+ document.getElementById('monthLitres').innerHTML=num(me.reduce((s,e)=>s+e.litres,0),2)+' <small>L</small>';
+ let recent=[...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
+ document.getElementById('recentList').innerHTML=recent.length?recent.map(entryHTML).join(''):'<div class="empty"><b>No fuel entries yet</b>Add your first refill to start tracking.</div>';
+}
+function renderHistory(){
+ let list=[...entries].sort((a,b)=>b.date.localeCompare(a.date));
+ document.getElementById('historyList').innerHTML=list.length?list.map(entryHTML).join(''):'<div class="empty"><b>Your history is empty</b>Fuel entries will appear here.</div>';
+}
+function renderReports(){
+ let months={};entries.forEach(e=>{let k=e.date.slice(0,7);months[k]=(months[k]||0)+e.cost});
+ let vals=Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6),max=Math.max(1,...vals.map(x=>x[1]));
+ document.getElementById('monthlyChart').innerHTML=vals.length?vals.map(([k,v])=>`<div class="barrow"><span>${k}</span><div class="barbg"><div class="bar" style="width:${v/max*100}%"></div></div><strong style="text-align:right">${money(v)}</strong></div>`).join(''):'<div class="empty">No spending data yet.</div>';
+ let ms=mileageRecords().reverse();
+ document.getElementById('mileageList').innerHTML=ms.length?ms.map(x=>`<div class="entry row"><div><strong>${num(x.kmpl,2)} km/L</strong><div class="detail">${x.date} · ${num(x.dist)} km over ${num(x.litres,2)} L</div></div><span class="pill">Measured</span></div>`).join(''):'<div class="empty">Mileage appears after two full-tank entries with increasing odometer readings.</div>';
+}
+function resetForm(){document.getElementById('fuelForm').reset();document.getElementById('date').value=new Date().toISOString().slice(0,10);document.getElementById('fullTank').checked=true;editing=null;document.querySelector('#fuelForm button[type=submit]').textContent='Save entry'}
+let editing=null;
+function editEntry(id){
+ let e=entries.find(x=>x.id===id);if(!e)return;editing=id;showPage('add');
+ for(let k of ['date','odo','litres','cost','station'])document.getElementById(k==='cost'?'price':k).value=e[k]??'';
+ document.getElementById('fullTank').checked=e.fullTank;document.querySelector('#fuelForm button[type=submit]').textContent='Update entry';
+}
+function deleteEntry(id){if(!confirm('Delete this fuel entry?'))return;entries=entries.filter(e=>e.id!==id);save();renderDashboard();renderHistory();renderReports();toast('Entry deleted')}
+document.getElementById('fuelForm').addEventListener('submit',ev=>{
+ ev.preventDefault();let date=document.getElementById('date').value,odo=+document.getElementById('odo').value,litres=+document.getElementById('litres').value,cost=+document.getElementById('price').value;
+ if(!date||odo<0||litres<=0||cost<=0)return toast('Please check the values');
+ let other=entries.filter(e=>e.id!==editing),prev=other.filter(e=>e.fullTank&&e.odo<odo).sort((a,b)=>b.odo-a.odo)[0];
+ let mileage=document.getElementById('fullTank').checked&&prev?(odo-prev.odo)/litres:null;
+ let e={id:editing||String(Date.now()),date,odo,litres,cost,fullTank:document.getElementById('fullTank').checked,station:document.getElementById('station').value.trim(),mileage};
+ if(editing)entries=entries.map(x=>x.id===editing?e:x);else entries.push(e);
+ entries.sort((a,b)=>a.odo-b.odo);save();resetForm();showPage('dashboard');toast('Fuel entry saved');
+});
+['litres','price'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{
+ let l=+document.getElementById('litres').value,p=+document.getElementById('price').value;
+ document.getElementById('ratePreview').textContent=l>0&&p>0?'Fuel rate: ₹'+(p/l).toFixed(2)+' per litre':'Fuel rate: —';
+}));
+function exportCSV(){
+ let rows=[['Date','Odometer (km)','Litres','Total paid (INR)','Rate per litre','Full tank','Mileage (km/L)','Station / notes']];
+ entries.sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>rows.push([e.date,e.odo,e.litres,e.cost,(e.cost/e.litres).toFixed(2),e.fullTank?'Yes':'No',e.mileage??'',e.station]));
+ let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('fueltrack-entries.csv',csv,'text/csv');}
+function backupJSON(){download('fueltrack-backup.json',JSON.stringify({app:'FuelTrack',version:1,exportedAt:new Date().toISOString(),entries},null,2),'application/json')}
+function download(name,data,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+function restoreJSON(ev){let f=ev.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.entries)||!d.entries.every(e=>e.date&&Number.isFinite(+e.odo)&&Number.isFinite(+e.litres)&&Number.isFinite(+e.cost)))throw Error();if(!confirm('Replace all current entries with '+d.entries.length+' backup entries?'))return;entries=d.entries;save();showPage('dashboard');toast('Backup restored')}catch{alert('This does not look like a valid FuelTrack backup.')}};r.readAsText(f);ev.target.value=''}
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+document.getElementById('date').value=new Date().toISOString().slice(0,10);
+renderDashboard();
+</script>
+</body></html>
